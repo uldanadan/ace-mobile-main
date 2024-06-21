@@ -31,7 +31,7 @@ async function loadAccountBalance(page: number, gameCenter: string) {
 			console.log(gameCenterBalance)
 		})
 		.catch(error => {
-			console.error(error)
+			console.error("Error loading balance:", error);
 			throw new Error(String(error))
 		})
 }

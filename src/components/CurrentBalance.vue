@@ -7,9 +7,7 @@ const partnersStore = usePartnersStore()
 const store = useAccountStore()
 
 const page = ref(1)
-const gameCenter = GameCenter.name
 onMounted(async () => {
-	await store.loadAccountBalance(page.value, gameCenter)
 	const obj = document.getElementById("balance")
 	console.log(store.accountBalance + "THIS IS BALANCE")
 	animateValue(obj, 0, store.accountBalance, 500)
@@ -39,17 +37,11 @@ const formatter = new Intl.NumberFormat("ru-KZ", {
 const gameCenterList = computed(() => {
 	return GameCenter.serializeList(partnersStore.gameCenterList)
 })
+
+
 </script>
 
 <template>
-	<!-- <div class="mx-auto mt-4 flex w-[90%] flex-col items-center rounded-xl bg-[#ffffff] py-4">
-    <div class="mb-2 text-base font-normal leading-[22px] text-[#80808f]">Текущий баланс</div>
-    <div class="left-7 flex gap-x-2 text-2xl font-bold text-[#2a2a32]">
-      <div id="balance">0</div>
-      ₸
-    </div>
-    <BalanceItem />
-  </div> -->
 	<div class="space-y-3 px-3" v-if="gameCenterList.length > 0">
 		<BalanceItem v-for="(item, index) in gameCenterList" :key="index" :item="item" />
 	</div>

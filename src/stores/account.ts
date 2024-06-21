@@ -166,23 +166,16 @@ export const useAccountStore = defineStore("account", {
 				})
 		},
 
-		async loadAccountBalance(page: number, gameCenter: string) {
-			await apiClientAccount
-				.get(`/accounts/balance/`, {
-					params: {
-						page: page,
-						game_center: gameCenter
-					}
-				})
-				.then(response => {
-					this.$patch({
-						accountBalance: response.data.wallet_amount
-					})
-				})
-				.catch(error => {
-					console.log(error)
-					throw new Error(String(error))
-				})
+		async loadAccountBalance(gameCenterUUID: string) {
+			try {
+				const response = await apiClientAccount.get(`/accounts/balance/?game_center=${gameCenterUUID}`);
+				if (response.status === 200) {
+					return response.data.wallet_amount;
+				}
+			} catch (error) {
+				console.error("Error loading balance:", error);
+				throw new Error(String(error));
+			}
 		},
 
 		async loadAccountBalanceHistory(from: string, to: string) {
