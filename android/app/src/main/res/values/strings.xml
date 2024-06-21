@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ace Gaming</string>
+    <string name="title_activity_main">Ace Gaming</string>
+    <string name="package_name">com.esportsapp.app</string>
+    <string name="custom_url_scheme">com.esportsapp.app</string>
+</resources>
