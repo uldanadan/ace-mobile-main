@@ -79,7 +79,16 @@ const [container, slider] = useKeenSlider(
   ]
 )
 
-const dotHelper = computed(() => (slider.value ? [...Array(slider.value.track.details.slides.length).keys()] : []))
+// const dotHelper = computed(() => (slider.value ? [...Array(slider.value.track.details.slides.length).keys()] : []))
+
+const dotHelper = computed(() => {
+	if (slider.value) {
+		const length = slider.value.track.details.slides.length;
+		return Array.from({ length }, (_, index) => index);
+	} else {
+		return [];
+	}
+});
 
 onMounted(() => {
   marketingStore.loadBanners()
