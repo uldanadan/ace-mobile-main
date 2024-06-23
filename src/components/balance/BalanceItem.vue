@@ -20,7 +20,7 @@ const gameCenterBalance = ref(props.item.balance);
 			<p class="text-brand-gray">{{ item.address }}</p>
 		</div>
 		<div>
-			<p class="text-xl font-semibold">{{ gameCenterBalance }} ₸</p>
+			<p class="text-xl font-semibold whitespace-nowrap">{{ gameCenterBalance }} ₸</p>
 		</div>
 	</router-link>
 </template>
