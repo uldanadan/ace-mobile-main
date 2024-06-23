@@ -3,41 +3,48 @@ import { onMounted, ref, computed } from "vue"
 import BalanceItem from "@/components/balance/BalanceItem.vue"
 import { useAccountStore, usePartnersStore } from "../stores"
 import { GameCenter } from "../models"
+import { apiClientAccount } from "../http-common"
+
 const partnersStore = usePartnersStore()
 const store = useAccountStore()
 
 const page = ref(1)
-onMounted(async () => {
-	const obj = document.getElementById("balance")
-	console.log(store.accountBalance + "THIS IS BALANCE")
-	animateValue(obj, 0, store.accountBalance, 500)
-	if (!partnersStore.gameCenterList.length) {
-		partnersStore.loadGameCenters(page.value)
-	}
-})
+const gameCenterList = ref([])
 
-function animateValue(obj: any, start: number, end: number, duration: number) {
-	let startTimestamp: number = 0
-	const step = (timestamp: number) => {
-		if (!startTimestamp) startTimestamp = timestamp
-		const progress = Math.min((timestamp - startTimestamp) / duration, 1)
-		obj.innerHTML = (progress * (end - start) + start).toFixed(0)
-		if (progress < 1) {
-			window.requestAnimationFrame(step)
+async function loadBalances() {
+	const promises = partnersStore.gameCenterList.map(async (gameCenter) => {
+		try {
+			const response = await apiClientAccount.get(`/accounts/balance/`, {
+				params: {
+					page: page.value,
+					game_center: gameCenter.uuid,
+				},
+			});
+			if (response.status === 200) {
+				return { ...gameCenter, balance: response.data.wallet_amount };
+			}
+		} catch (error) {
+			console.error(`Error loading balance for game center ${gameCenter.uuid}:`, error);
+			return null;
 		}
-	}
-	window.requestAnimationFrame(step)
+	});
+
+	const results = await Promise.all(promises);
+	gameCenterList.value = results.filter(result => result !== null);
 }
+
+onMounted(async () => {
+	if (!partnersStore.gameCenterList.length) {
+		await partnersStore.loadGameCenters(page.value);
+	}
+	await loadBalances();
+});
 
 const formatter = new Intl.NumberFormat("ru-KZ", {
 	style: "currency",
 	currency: "KZT",
-	maximumFractionDigits: 0 // (causes 2500.99 to be printed as $2,501)
-})
-const gameCenterList = computed(() => {
-	return GameCenter.serializeList(partnersStore.gameCenterList)
-})
-
+	maximumFractionDigits: 0,
+});
 
 </script>
 
@@ -46,3 +53,5 @@ const gameCenterList = computed(() => {
 		<BalanceItem v-for="(item, index) in gameCenterList" :key="index" :item="item" />
 	</div>
 </template>
+
+<style scoped></style>
