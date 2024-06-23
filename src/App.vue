@@ -1,26 +1,5 @@
-<template>
-	<main class="relative h-full max-w-screen-md flex-1 bg-white">
-		<!-- <router-view v-slot="{ Component, route }">
-      <transition :name="transitionName" mode="out-in">
-      <div
-        :key="String(route.name)"
-        class="h-full bg-white"
-        :class="{
-            'pt-safe': ['Booking', 'Locations'].includes(route.meta.title as string),
-            'pt-header-safe': !(['Booking', 'Locations'].includes(route.meta.title as string)),
-          }"
-      >
-      <component :is="Component"></component>
-    </div>
-    </transition>
-  </router-view> -->
-		<Header />
-		<RouterView />
-	</main>
-</template>
-
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from "vue"
+import { onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { SafeArea } from "capacitor-plugin-safe-area"
 
@@ -53,6 +32,27 @@ router.afterEach((to, from) => {
 	transitionName.value = toDepth < fromDepth ? " " : "slide"
 })
 </script>
+
+<template>
+	<main class="relative h-full max-w-screen-md flex-1 bg-white">
+		<!-- <router-view v-slot="{ Component, route }">
+      <transition :name="transitionName" mode="out-in">
+      <div
+        :key="String(route.name)"
+        class="h-full bg-white"
+        :class="{
+            'pt-safe': ['Booking', 'Locations'].includes(route.meta.title as string),
+            'pt-header-safe': !(['Booking', 'Locations'].includes(route.meta.title as string)),
+          }"
+      >
+      <component :is="Component"></component>
+    </div>
+    </transition>
+  </router-view> -->
+		<Header />
+		<RouterView />
+	</main>
+</template>
 
 <style>
 * ::-webkit-scrollbar {

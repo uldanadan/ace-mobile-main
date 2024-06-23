@@ -1,3 +1,118 @@
+<script setup lang="ts">
+import { ref } from "vue"
+
+import ProfileIcon from "../assets/icons/avatar-icon.svg?url"
+import ArrowIcon from "../assets/icons/chevron_back_28.svg?url"
+import SearchIcon from "../assets/icons/search-icon.svg?url"
+import FilterIcon from "../assets/icons/filter_24.svg?url"
+import MapIcon from "../assets/icons/map-icon.svg?url"
+import { usePartnersStore, useAccountStore, useUtilityStore } from "../stores"
+import { SafeArea } from "capacitor-plugin-safe-area"
+
+const router = useRouter()
+const route = useRoute()
+const goBack = () => {
+	router.back()
+}
+
+const safeAreas = ref({
+	top: 0,
+	bottom: 0,
+	left: 0,
+	right: 0
+})
+SafeArea.getSafeAreaInsets().then(({ insets }) => {
+	safeAreas.value = insets
+})
+const goToHistory = () => {
+	router.push("/balance/history")
+}
+const partnersStore = usePartnersStore()
+const accountStore = useAccountStore()
+const utilityStore = useUtilityStore()
+const { setFiltersModal } = partnersStore
+
+const clubInfo = computed(() => {
+	return partnersStore.selectedGameCenter.name
+})
+
+const isQrSlide = computed(() => {
+	return accountStore.qrSlide
+})
+
+const handleCloseQrSlide = () => {
+	accountStore.switchQrSlide()
+}
+
+const headerBack = computed(() => {
+	if (route.meta.title === "Replenish" || route.meta.title === "Clubs" || route.meta.title === "Balance" || route.meta.title === "Card" || route.meta.title === "Home" || route.meta.title === "News" || route.meta.title === "Fill" || route.meta.title === "History" || route.meta.title === "History details" || route.meta.title === "Review" || route.meta.title === "Auth" || route.meta.title === "Profile" || route.meta.title === "Register" || route.meta.title === "Forgot" || route.meta.title === "Change" || route.meta.title === "QR" || route.meta.title === "Add Balance" || route.meta.title === "About") {
+		return true
+	} else if (route.meta.title === "Booking" || route.meta.title === "Receipt" || route.meta.title === "Success") {
+		return false
+	}
+})
+
+let scrollpos = window.pageYOffset
+const header = document.querySelector(".header")
+const headerClass = computed(() => utilityStore.getSearchBarState)
+const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+
+const scrollDown = () => utilityStore.setSearchBarState(true)
+const scrollUp = () => utilityStore.setSearchBarState(false)
+
+const isShowTitle = ref(false)
+
+document.addEventListener("scroll", function () {
+	scrollpos = window.pageYOffset
+	let heading = document.getElementById("clubTitle")
+	let headingStart = heading?.offsetTop! - 55
+	let headingEnd = heading?.offsetTop! - 31
+
+	if (scrollpos >= headingStart && scrollpos < headingEnd) {
+		scrollDown()
+	} else if (scrollpos >= headingEnd) {
+		scrollDown()
+		isShowTitle.value = true
+	} else {
+		if (searchText.value.length < 1) {
+			scrollUp()
+		}
+	}
+	if (headingEnd >= scrollpos && scrollpos > headingStart && !searchText.value.length) {
+		isShowTitle.value = false
+	}
+})
+
+onUpdated(() => {
+	let heading = document.getElementById("clubTitle")
+	let headingStart = heading?.offsetTop! - 55
+	if (searchText.value.length) {
+		utilityStore.setSearchBarState(true)
+	}
+	if (headingStart >= scrollpos && !searchText.value.length) {
+		utilityStore.setSearchBarState(false)
+	}
+	if (vh * 0.27 >= scrollpos && scrollpos > vh * 0.21 && !searchText.value.length) {
+		isShowTitle.value = false
+	}
+})
+
+const searchText = ref("")
+
+const searchClub = (text: string) => {
+	let delayTimer: any
+	clearTimeout(delayTimer)
+	delayTimer = setTimeout(function () {
+		partnersStore.loadSearchClubs(text)
+	}, 1000)
+}
+
+const goToProfile = () => {
+	accountStore.setNextRoute("/profile")
+}
+</script>
+
+
 <template>
 	<div
 		id="header"
@@ -91,7 +206,7 @@
 				<h2 class="back-btn absolute left-[50%]">Пополнить баланс</h2>
 			</transition>
 		</div>
-		<div v-else-if="$route.meta.title === 'Balance' || $route.meta.title === 'Card' || $route.meta.title === 'Fill' || route.meta.title === 'Add Balance'" class="relative flex max-h-[24px] w-full items-center">
+		<div v-else-if="$route.meta.title === 'Balance' || $route.meta.title === 'Card' || $route.meta.title === 'Fill' || route.meta.title === 'Add Balance' || route.meta.title === 'About'" class="relative flex max-h-[24px] w-full items-center">
 			<button class="flex items-center justify-center bg-transparent py-2 text-base font-normal text-[#9475ed]" @click="goBack()">
 				<img :src="ArrowIcon" alt="" height="24" width="24" style="width: 23px" />
 				Назад
@@ -100,6 +215,7 @@
 			<h1 v-else-if="$route.meta.title === 'Card'" class="back-btn absolute left-[50%]">Новая карта</h1>
 			<h1 v-else-if="$route.meta.title === 'Fill'" class="back-btn absolute left-[50%]">Мой баланс</h1>
 			<h1 v-else-if="$route.meta.title === 'Add Balance'" class="back-btn absolute left-[50%]">Пополнение</h1>
+			<h1 v-else-if="$route.meta.title === 'About'" class="back-btn absolute left-[50%]">О нас</h1>
 			<button @click="goToHistory" class="ml-auto mr-3 flex items-center justify-center bg-transparent py-2 text-base font-normal text-[#9475ed]" v-if="$route.meta.title === 'Fill'">История</button>
 		</div>
 		<div v-else-if="$route.meta.title === 'News'" class="relative flex max-h-[24px] w-full items-center">
@@ -139,120 +255,6 @@
 	</div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue"
-
-import ProfileIcon from "../assets/icons/avatar-icon.svg?url"
-import ArrowIcon from "../assets/icons/chevron_back_28.svg?url"
-import SearchIcon from "../assets/icons/search-icon.svg?url"
-import FilterIcon from "../assets/icons/filter_24.svg?url"
-import MapIcon from "../assets/icons/map-icon.svg?url"
-import { usePartnersStore, useAccountStore, useUtilityStore } from "../stores"
-import { SafeArea } from "capacitor-plugin-safe-area"
-
-const router = useRouter()
-const route = useRoute()
-const goBack = () => {
-	router.back()
-}
-
-const safeAreas = ref({
-	top: 0,
-	bottom: 0,
-	left: 0,
-	right: 0
-})
-SafeArea.getSafeAreaInsets().then(({ insets }) => {
-	safeAreas.value = insets
-})
-const goToHistory = () => {
-	router.push("/balance/history")
-}
-const partnersStore = usePartnersStore()
-const accountStore = useAccountStore()
-const utilityStore = useUtilityStore()
-const { setFiltersModal } = partnersStore
-
-const clubInfo = computed(() => {
-	return partnersStore.selectedGameCenter.name
-})
-
-const isQrSlide = computed(() => {
-	return accountStore.qrSlide
-})
-
-const handleCloseQrSlide = () => {
-	accountStore.switchQrSlide()
-}
-
-const headerBack = computed(() => {
-	if (route.meta.title === "Replenish" || route.meta.title === "Clubs" || route.meta.title === "Balance" || route.meta.title === "Card" || route.meta.title === "Home" || route.meta.title === "News" || route.meta.title === "Fill" || route.meta.title === "History" || route.meta.title === "History details" || route.meta.title === "Review" || route.meta.title === "Auth" || route.meta.title === "Profile" || route.meta.title === "Register" || route.meta.title === "Forgot" || route.meta.title === "Change" || route.meta.title === "QR" || route.meta.title === "Add Balance") {
-		return true
-	} else if (route.meta.title === "Booking" || route.meta.title === "Receipt" || route.meta.title === "Success") {
-		return false
-	}
-})
-
-let scrollpos = window.pageYOffset
-const header = document.querySelector(".header")
-const headerClass = computed(() => utilityStore.getSearchBarState)
-const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
-
-const scrollDown = () => utilityStore.setSearchBarState(true)
-const scrollUp = () => utilityStore.setSearchBarState(false)
-
-const isShowTitle = ref(false)
-
-document.addEventListener("scroll", function () {
-	scrollpos = window.pageYOffset
-	let heading = document.getElementById("clubTitle")
-	let headingStart = heading?.offsetTop! - 55
-	let headingEnd = heading?.offsetTop! - 31
-
-	if (scrollpos >= headingStart && scrollpos < headingEnd) {
-		scrollDown()
-	} else if (scrollpos >= headingEnd) {
-		scrollDown()
-		isShowTitle.value = true
-	} else {
-		if (searchText.value.length < 1) {
-			scrollUp()
-		}
-	}
-	if (headingEnd >= scrollpos && scrollpos > headingStart && !searchText.value.length) {
-		isShowTitle.value = false
-	}
-})
-
-onUpdated(() => {
-	let heading = document.getElementById("clubTitle")
-	let headingStart = heading?.offsetTop! - 55
-	if (searchText.value.length) {
-		utilityStore.setSearchBarState(true)
-	}
-	if (headingStart >= scrollpos && !searchText.value.length) {
-		utilityStore.setSearchBarState(false)
-	}
-	if (vh * 0.27 >= scrollpos && scrollpos > vh * 0.21 && !searchText.value.length) {
-		isShowTitle.value = false
-	}
-})
-
-const searchText = ref("")
-
-const searchClub = (text: string) => {
-	let delayTimer: any
-	clearTimeout(delayTimer)
-	delayTimer = setTimeout(function () {
-		partnersStore.loadSearchClubs(text)
-	}, 1000)
-}
-
-const goToProfile = () => {
-	accountStore.setNextRoute("/profile")
-}
-</script>
-41
 <style>
 .header {
 	background-color: #ffffff;
