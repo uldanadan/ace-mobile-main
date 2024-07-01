@@ -51,7 +51,7 @@ const noBalances = computed(() => gameCenterList.value.length === 0);
 <template>
 	<div class="space-y-3 px-3">
 		<div v-if="noBalances" class="text-center text-lg text-brand-gray">
-			У вас нет балансов в клубах, для создания баланса пожалуйста авторизуйтесь в компьютерном клубе
+			У вас нет балансов в клубах, для создания баланса пожалуйста авторизуйтесь в компьютерном клубе.
 		</div>
 		<BalanceItem v-for="(item, index) in gameCenterList" :key="index" :item="item" />
 	</div>
