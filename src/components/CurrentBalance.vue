@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue"
-import BalanceItem from "@/components/balance/BalanceItem.vue"
-import { useAccountStore, usePartnersStore } from "../stores"
-import { GameCenter } from "../models"
-import { apiClientAccount } from "../http-common"
+import { onMounted, ref, computed } from "vue";
+import BalanceItem from "@/components/balance/BalanceItem.vue";
+import { useAccountStore, usePartnersStore } from "../stores";
+import { apiClientAccount } from "../http-common";
 
-const partnersStore = usePartnersStore()
-const store = useAccountStore()
+const partnersStore = usePartnersStore();
+const store = useAccountStore();
 
-const page = ref(1)
-const gameCenterList = ref([])
+const page = ref(1);
+const gameCenterList = ref([]);
 
 async function loadBalances() {
 	const promises = partnersStore.gameCenterList.map(async (gameCenter) => {
@@ -46,10 +45,14 @@ const formatter = new Intl.NumberFormat("ru-KZ", {
 	maximumFractionDigits: 0,
 });
 
+const noBalances = computed(() => gameCenterList.value.length === 0);
 </script>
 
 <template>
-	<div class="space-y-3 px-3" v-if="gameCenterList.length > 0">
+	<div class="space-y-3 px-3">
+		<div v-if="noBalances" class="text-center text-lg text-brand-gray">
+			У вас нет балансов в клубах, для создания баланса пожалуйста авторизуйтесь в компьютерном клубе
+		</div>
 		<BalanceItem v-for="(item, index) in gameCenterList" :key="index" :item="item" />
 	</div>
 </template>
