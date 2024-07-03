@@ -57,7 +57,7 @@ onMounted(() => {
 
 <template>
 	<div v-if="club != null">
-		<div class="mt-10 px-5 py-7">
+		<div class="mt-10 p-5">
 			<div v-if="userData && userData.uuid && userData.email" class="mb-5 flex w-full items-center justify-center">
 				<QRcode class="max-w-full" :value="`balance ${userData.uuid} ${userData.email}`" />
 			</div>
