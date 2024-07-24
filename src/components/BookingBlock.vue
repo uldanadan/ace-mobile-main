@@ -54,16 +54,19 @@ const emit = defineEmits<{
 const errorData = computed(() => accountStore.error)
 
 const showLoading = () => {
-	let blur = (document.getElementById("blur-loading") as HTMLElement) || null
-	blur?.classList.remove("hidden")
-	document.body.scrollTop = 0
-	document.documentElement.scrollTop = 0
-	setTimeout(() => {
-		blur.classList.add("hidden")
-	}, 2500)
-	setTimeout(() => {
-		router.push("/")
-	}, 2500)
+	let blur = document.getElementById("blur-loading") as HTMLElement;
+	if (blur) {
+		document.body.scrollTop = 0;
+		document.documentElement.scrollTop = 0;
+
+		setTimeout(() => {
+			blur.remove();
+		}, 2500);
+
+		setTimeout(() => {
+			router.push("/");
+		}, 2500);
+	}
 }
 
 const bookedPc = ref<Array<any>>([])
